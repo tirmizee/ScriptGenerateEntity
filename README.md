@@ -69,7 +69,7 @@
     GO  
     
    # Generate Map Column
-       USE schema_name;  
+    USE schema_name;  
     GO  
     CREATE PROCEDURE generateColumn   
     @table nvarchar(50)   
