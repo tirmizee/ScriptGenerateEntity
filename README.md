@@ -9,7 +9,7 @@
 
     SELECT 
 
-      'private ' + 
+    'private ' + 
     CASE t.Name 
       when 'nvarchar'   then 'String'
       when 'varchar'    then 'String'
@@ -34,4 +34,5 @@
       sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
     WHERE
       c.object_id = OBJECT_ID(@table) 
+      
     GO  
