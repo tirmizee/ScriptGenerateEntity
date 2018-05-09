@@ -1,13 +1,13 @@
-#Generate Attribute Entity 
-  USE schema_name;  
-  GO  
-  CREATE PROCEDURE generateAttributeEntity   
-   @table nvarchar(50)   
-  AS   
+# Generate Attribute Entity 
+    USE schema_name;  
+    GO  
+    CREATE PROCEDURE generateAttributeEntity   
+    @table nvarchar(50)   
+    AS   
 
-      SET NOCOUNT ON;  
+    SET NOCOUNT ON;  
 
-  SELECT 
+    SELECT 
 
       'private ' + 
     CASE t.Name 
@@ -34,4 +34,4 @@
       sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
     WHERE
       c.object_id = OBJECT_ID(@table) 
-  GO  
+    GO  
