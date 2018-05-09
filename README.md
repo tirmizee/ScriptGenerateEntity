@@ -36,3 +36,34 @@
       c.object_id = OBJECT_ID(@table) 
       
     GO  
+
+# Generate Column 
+    USE schema_name;  
+    GO  
+    CREATE PROCEDURE generateColumn   
+    @table nvarchar(50)   
+    AS   
+
+    SET NOCOUNT ON;  
+	
+	SELECT 'public static final String TABLE_' + UPPER(@table) + ' = "' + @table + '";'
+
+	UNION ALL
+
+	SELECT 'public static final String COL_' + UPPER (c.Name) + ' = "' +  c.Name + '";'
+	FROM sys.columns c
+		JOIN sys.objects o ON o.object_id = c.object_id
+	WHERE o.object_id = OBJECT_ID(@table)
+
+	UNION ALL
+
+	SELECT '' 
+
+	UNION ALL
+
+	SELECT 'public static final String ' + UPPER (c.name) + ' = "' + o.name + '.' + c.Name + '";'
+		FROM sys.columns c 
+			JOIN sys.objects o ON o.object_id = c.object_id
+		WHERE o.object_id = OBJECT_ID(@table)
+      
+    GO  
