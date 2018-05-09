@@ -67,3 +67,17 @@
 		WHERE o.object_id = OBJECT_ID(@table)
       
     GO  
+    
+   # Generate Map Column
+       USE schema_name;  
+    GO  
+    CREATE PROCEDURE generateColumn   
+    @table nvarchar(50)   
+    AS
+    SET NOCOUNT ON;  
+    SELECT 'map.put(COL_' + UPPER (c.Name) + ' , param.get' +  c.Name + '());'
+	FROM sys.columns c
+		JOIN sys.objects o ON o.object_id = c.object_id
+	WHERE o.object_id = OBJECT_ID(@table)
+      
+    GO  
