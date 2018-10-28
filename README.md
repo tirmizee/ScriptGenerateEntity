@@ -1,5 +1,5 @@
 # GENERATE SCRIPT 
-	ALTER PROCEDURE [dbo].[generateRepository]   
+	CREATE PROCEDURE [dbo].[generateRepository]   
 	@table nvarchar(50)   
 	AS   
 
