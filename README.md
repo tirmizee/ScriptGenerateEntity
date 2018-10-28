@@ -4,9 +4,8 @@
 	AS   
 
 	SET NOCOUNT ON;  
-
+	-- TABLE ENTITY
 	SELECT 
-
 	'private ' + 
 	CASE LOWER(LEFT(t.Name ,1))+SUBSTRING(t.Name ,2,LEN(t.Name ))
 	  when 'nvarchar'   then 'String'
@@ -22,7 +21,6 @@
 	  when 'decimal'    then 'BigDecimal'
 	  ELSE ''
 	END + ' ' + c.name +';' AS Entity
-
 	FROM    
 	  sys.columns c
 	INNER JOIN 
@@ -34,32 +32,28 @@
 	WHERE
 	  c.object_id = OBJECT_ID(@table);
 
+	-- TABLE COLUMN
 	SELECT 'public static final String TABLE_' + UPPER(@table) + ' = "' + @table + '";' AS [Column]
-
 	UNION ALL
-
 	SELECT 'public static final String COL_' + UPPER (c.Name) + ' = "' +  c.Name + '";' AS [Column]
 	FROM sys.columns c
 		JOIN sys.objects o ON o.object_id = c.object_id
 	WHERE o.object_id = OBJECT_ID(@table)
-
 	UNION ALL
-
 	SELECT '' AS [Column]
-
 	UNION ALL
-
 	SELECT 'public static final String ' + UPPER (c.name) + ' = "' + o.name + '.' + c.Name + '";' AS [Column]
-		FROM sys.columns c 
-			JOIN sys.objects o ON o.object_id = c.object_id
-		WHERE o.object_id = OBJECT_ID(@table);
+	FROM sys.columns c 
+		JOIN sys.objects o ON o.object_id = c.object_id
+	WHERE o.object_id = OBJECT_ID(@table);
 
-
+	-- TABLE MAP COLUMN
 	SELECT 'map.put(COL_' + UPPER (c.Name) + ' , param.get' +  c.Name + '());' AS MapColumn
 	FROM sys.columns c
 		JOIN sys.objects o ON o.object_id = c.object_id
 	WHERE o.object_id = OBJECT_ID(@table);
 
+	-- TABLE RESULT SET
 	SELECT 
 	@table + '.set' + c.name + '(rs.get' +
 	CASE t.Name 
@@ -76,7 +70,6 @@
 		when 'real'       then 'Float'
 		ELSE ''
 	END + '(COL_' + upper(c.name) + '));' AS ResultSet
-
 	FROM    
 		sys.columns c
 	INNER JOIN 
