@@ -1,4 +1,4 @@
-# GENERATE SCRIPT 
+# SCRIPT GENERATE FOR MSSQL
 	CREATE PROCEDURE [dbo].[generateRepository]   
 	@table nvarchar(50)   
 	AS   
