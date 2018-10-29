@@ -80,3 +80,84 @@
 		sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
 	WHERE
 		c.object_id = OBJECT_ID(@table);
+# SCRIPT GENERATE FOR MYSQL
+	CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRepository`(IN tableName VARCHAR(255))
+	BEGIN
+		SELECT 
+			concat(
+				'public static final String TABLE_', 
+		    UPPER (table_name),
+		    ' = "',
+		    table_name,
+		    '";' 
+			) AS ColumnNane 
+		FROM information_schema.columns where table_name = tableName
+		UNION
+		SELECT 
+			concat(
+				'public static final String COL_', 
+		    UPPER (column_name),
+		    ' = "',
+		    column_name,
+		    '";' 
+			) AS ColumnNane 
+		FROM information_schema.columns where table_name = tableName
+	    UNION
+		SELECT 
+			concat(
+				'public static final String ', 
+		    UPPER (column_name),
+		    ' = "',
+		    table_name,
+		    '.',
+		    column_name,
+		    '";' 
+			) AS ColumnNane 
+		FROM information_schema.columns where table_name = tableName;
+
+	    SELECT 
+			concat(
+				'private ' , 
+		    CASE DATA_TYPE
+					WHEN 'varchar'     THEN 'String'
+			WHEN 'bigint'      THEN 'Long'
+					WHEN 'datetime'    THEN 'Timestamp'
+			WHEN 'date'        THEN 'java.sql.Date'
+			ELSE 'String'
+		    END ,
+		    ' ' ,
+		    column_name ,
+		    ';'
+			) AS Entity 
+		FROM information_schema.columns where table_name = tableName;
+
+	    SELECT 
+			concat(
+				'map.put(COL_', 
+		    UPPER (column_name),
+		    ', param.get',
+		    CONCAT(UCASE(LEFT(column_name, 1)),SUBSTRING(column_name, 2)), 
+		    '());'
+			) AS MapColumn
+	    FROM information_schema.columns where table_name = tableName;
+
+	     SELECT 
+			CONCAT(
+				CONCAT(LCASE(LEFT(table_name, 1)),SUBSTRING(table_name, 2)) ,
+		    '.set' ,
+		    CONCAT(UCASE(LEFT(column_name, 1)),SUBSTRING(column_name, 2)),
+		    '(rs.get',
+				CASE DATA_TYPE
+					WHEN 'varchar'     THEN 'String'
+			WHEN 'bigint'      THEN 'Long'
+					WHEN 'datetime'    THEN 'Timestamp'
+			WHEN 'date'        THEN 'Date'
+			ELSE 'String'
+		    END ,
+		    '(COL_',
+		    UPPER (column_name),
+		    '));'
+		) AS ResultSet
+	    FROM information_schema.columns where table_name = tableName;
+
+	END
