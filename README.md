@@ -161,3 +161,104 @@
 	    FROM information_schema.columns where table_name = tableName;
 
 	END
+	
+# SCRIPT GENERATE FOR MSSQL
+	SELECT 
+		 'public static final String TABLE_'
+		 CONCAT 
+		 UPPER (TABLE_NAME) 
+		 CONCAT
+		 ' = "' 
+		 CONCAT
+		 TABLE_NAME 
+		 CONCAT
+		 '";' 
+		 AS ColumnNane 
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA'
+	UNION
+	SELECT 
+		 'public static final String COL_'
+		 CONCAT 
+		 UPPER (COLUMN_NAME) 
+		 CONCAT
+		 ' = "' 
+		 CONCAT
+		 COLUMN_NAME 
+		 CONCAT
+		 '";' 
+		 AS ColumnNane 
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA'
+	UNION
+	SELECT 
+		'public static final String '
+		CONCAT 
+		UPPER (COLUMN_NAME)
+		CONCAT
+		' = "'
+		CONCAT
+		TABLE_NAME
+		CONCAT
+		'.'
+		CONCAT
+		COLUMN_NAME
+		CONCAT
+		'";' 
+		 AS ColumnNane 
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	SELECT 
+		'private ' 
+		CONCAT 
+		CASE TYPE_NAME
+			WHEN 'varchar'     THEN 'String'
+			WHEN 'bigint'      THEN 'Long'
+			WHEN 'datetime'    THEN 'Timestamp'
+			WHEN 'date'        THEN 'java.sql.Date'
+			ELSE 'String'
+		END 
+		CONCAT
+		' ' 
+		CONCAT
+		COLUMN_NAME 
+		CONCAT
+		';'
+		AS Entity 
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	SELECT 
+		'map.put(COL_'
+		CONCAT 
+		UPPER (COLUMN_NAME)
+		CONCAT
+		', param.get'
+		CONCAT
+		CONCAT(UCASE(LEFT(COLUMN_NAME, 1)),SUBSTRING(COLUMN_NAME, 2))
+		CONCAT 
+		'());'
+		AS MapColumn
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	SELECT 
+		CONCAT(LCASE(LEFT(TABLE_NAME, 1)),SUBSTRING(TABLE_NAME, 2)) 
+		CONCAT
+		'.set' 
+		CONCAT
+		CONCAT(UCASE(LEFT(COLUMN_NAME, 1)),SUBSTRING(COLUMN_NAME, 2))
+		CONCAT
+		'(rs.get'
+		CONCAT
+		CASE TYPE_NAME
+			WHEN 'varchar'     THEN 'String'
+			WHEN 'bigint'      THEN 'Long'
+			WHEN 'datetime'    THEN 'Timestamp'
+			WHEN 'date'        THEN 'Date'
+			ELSE 'String'
+		END 
+		CONCAT
+		'(COL_'
+		CONCAT
+		UPPER (COLUMN_NAME)
+		CONCAT
+		'));'
+		AS ResultSet
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
