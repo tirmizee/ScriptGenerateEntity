@@ -162,7 +162,7 @@
 
 	END
 	
-# SCRIPT GENERATE FOR MSSQL
+# SCRIPT GENERATE FOR AS400
 	SELECT 
 		 'public static final String TABLE_'
 		 CONCAT 
