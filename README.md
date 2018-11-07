@@ -1,3 +1,5 @@
+# Sample script generate code form database
+
 # SCRIPT GENERATE FOR MSSQL
 	CREATE PROCEDURE [dbo].[generateRepository]   
 	@table nvarchar(50)   
