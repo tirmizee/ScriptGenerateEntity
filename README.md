@@ -1,4 +1,4 @@
-# Sample script generate code form database
+# Sample script generate code from database
 
 # SCRIPT GENERATE FOR MSSQL
 	CREATE PROCEDURE [dbo].[generateRepository]   
