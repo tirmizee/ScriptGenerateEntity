@@ -166,17 +166,17 @@
 	
 # SCRIPT GENERATE FOR DB2/AS400
 	SELECT 
-		 'public static final String TABLE_'
-		 CONCAT 
-		 UPPER (TABLE_NAME) 
-		 CONCAT
-		 ' = "' 
-		 CONCAT
-		 TABLE_NAME 
-		 CONCAT
-		 '";' 
-		 AS ColumnNane 
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA'
+	 'public static final String TABLE_'
+	 CONCAT 
+	 UPPER (TABLE_NAME) 
+	 CONCAT
+	 ' = "' 
+	 CONCAT
+	 TABLE_NAME 
+	 CONCAT
+	 '";' 
+	 AS ColumnNane 
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA'
 	UNION
 	SELECT 
 		 'public static final String COL_'
@@ -189,7 +189,7 @@
 		 CONCAT
 		 '";' 
 		 AS ColumnNane 
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA'
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA'
 	UNION
 	SELECT 
 		'public static final String '
@@ -206,16 +206,19 @@
 		CONCAT
 		'";' 
 		 AS ColumnNane 
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
-	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	SELECT 
 		'private ' 
 		CONCAT 
-		CASE TYPE_NAME
-			WHEN 'varchar'     THEN 'String'
+		CASE LOWER(TYPE_NAME)
+	    WHEN 'varchar'     THEN 'String'
+	    WHEN 'char'        THEN 'String'
 			WHEN 'bigint'      THEN 'Long'
-			WHEN 'datetime'    THEN 'Timestamp'
-			WHEN 'date'        THEN 'java.sql.Date'
+	    WHEN 'decimal'     THEN 'BigDecimal'
+			WHEN 'datetime'    THEN 'java.sql.Date'
+	    WHEN 'timestamp'   THEN 'Timestamp'
+			WHEN 'date'        THEN 'Date'
 			ELSE 'String'
 		END 
 		CONCAT
@@ -225,8 +228,8 @@
 		CONCAT
 		';'
 		AS Entity 
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
-	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	SELECT 
 		'map.put(COL_'
 		CONCAT 
@@ -238,8 +241,8 @@
 		CONCAT 
 		'());'
 		AS MapColumn
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
-	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
+	-- SELECT * FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	SELECT 
 		CONCAT(LCASE(LEFT(TABLE_NAME, 1)),SUBSTRING(TABLE_NAME, 2)) 
 		CONCAT
@@ -249,10 +252,13 @@
 		CONCAT
 		'(rs.get'
 		CONCAT
-		CASE TYPE_NAME
+		CASE LOWER(TYPE_NAME)
 			WHEN 'varchar'     THEN 'String'
+	    WHEN 'char'        THEN 'String'
 			WHEN 'bigint'      THEN 'Long'
+	    WHEN 'decimal'     THEN 'BigDecimal'
 			WHEN 'datetime'    THEN 'Timestamp'
+	    WHEN 'timestamp'   THEN 'Timestamp'
 			WHEN 'date'        THEN 'Date'
 			ELSE 'String'
 		END 
@@ -263,4 +269,4 @@
 		CONCAT
 		'));'
 		AS ResultSet
-	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'RTRNPF' AND TABLE_SCHEM = 'PMOTDTA';
+	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
