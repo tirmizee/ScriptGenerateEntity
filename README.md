@@ -299,3 +299,18 @@
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
 	WHERE tb.table_name =: table_name 
 
+	-- RESULT_SET --
+	SELECT 
+	    (
+		LOWER(cols.table_name) || '.set' || INITCAP(cols.column_name) || '(rs.get' ||
+		CASE cols.data_type
+		    WHEN 'NUMBER'    THEN 'Int'
+		    WHEN 'VARCHAR'   THEN 'String'
+		    WHEN 'VARCHAR2'  THEN 'String'
+		END  || 
+		'(COL_' || upper(cols.column_name) || '));'
+	    ) AS RESULT_SET
+	FROM all_tables tb
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	WHERE tb.table_name =: table_name 
+
