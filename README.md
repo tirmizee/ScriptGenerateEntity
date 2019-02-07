@@ -313,4 +313,9 @@
 	FROM all_tables tb
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
 	WHERE tb.table_name =: table_name 
-
+	-- MAP --
+	SELECT 
+	    'map.put(COL_' || upper(cols.column_name) || ', param.get' ||  INITCAP(cols.column_name) || '());' AS MAP
+	FROM all_tables tb
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	WHERE tb.table_name =: table_name 
