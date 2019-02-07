@@ -270,3 +270,16 @@
 		'));'
 		AS ResultSet
 	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
+	
+# SCRIPT GENERATE FOR MSSQL
+	-- COLUMNS
+	SELECT 
+	    'public static final String TB_' || upper(:table_name) || ' = "' ||:table_name || '";'  AS COLUMNS  
+	FROM DUAL
+	UNION ALL
+	SELECT 
+	    'public static final String COL_' || upper(cols.column_name) || ' = "' || cols.column_name || '";' AS COLUMNS
+	FROM all_tables tb 
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	WHERE tb.table_name =: table_name 
+
