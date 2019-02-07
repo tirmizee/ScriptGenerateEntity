@@ -271,8 +271,8 @@
 		AS ResultSet
 	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	
-# SCRIPT GENERATE FOR MSSQL
-	-- COLUMNS
+# SCRIPT GENERATE FOR ORACLE
+	-- COLUMNS --
 	SELECT 
 	    'public static final String TB_' || upper(:table_name) || ' = "' ||:table_name || '";'  AS COLUMNS  
 	FROM DUAL
