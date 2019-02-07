@@ -282,4 +282,20 @@
 	FROM all_tables tb 
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
 	WHERE tb.table_name =: table_name 
+	
+	-- ENTITY --
+	SELECT 
+	    (
+		'private ' ||
+		CASE cols.data_type
+		    WHEN 'NUMBER'    THEN 'Integer'
+		    WHEN 'VARCHAR'   THEN 'String'
+		    WHEN 'VARCHAR2'  THEN 'String'
+		END || ' ' ||
+		lower(cols.column_name) || ';'
+
+	    ) AS ENTITY
+	FROM all_tables tb
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	WHERE tb.table_name =: table_name 
 
