@@ -282,6 +282,12 @@
 	FROM all_tables tb 
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
 	WHERE tb.table_name =: table_name 
+	UNION ALL
+	SELECT 
+	    'public static final String ' || upper(cols.column_name) || ' = "' ||:table_name || '.' || cols.column_name || '";' AS COLUMNS
+	FROM all_tables tb 
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	WHERE tb.table_name =: table_name 
 	
 	-- ENTITY --
 	SELECT 
