@@ -272,24 +272,34 @@
 	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	
 # SCRIPT GENERATE FOR ORACLE
-	-- COLUMNS --
+	CREATE VIEW GENERATE_REPO AS
 	SELECT 
-	    'public static final String TB_' || upper(:table_name) || ' = "' ||:table_name || '";'  AS COLUMNS  
-	FROM DUAL
+    	'#########################COLUMNS#########################' AS GEBERATE,
+	    table_name
+	FROM all_tables
 	UNION ALL
 	SELECT 
-	    'public static final String COL_' || upper(cols.column_name) || ' = "' || cols.column_name || '";' AS COLUMNS
-	FROM all_tables tb 
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	WHERE tb.table_name =: table_name 
+	'public static final String TB_' || upper(table_name) || ' = "' ||table_name || '";'  AS GEBERATE,
+	table_name
+	FROM all_tables 
 	UNION ALL
 	SELECT 
-	    'public static final String ' || upper(cols.column_name) || ' = "' ||:table_name || '.' || cols.column_name || '";' AS COLUMNS
+	    'public static final String COL_' || upper(cols.column_name) || ' = "' || cols.column_name || '";' AS GEBERATE,
+	    tb.table_name
 	FROM all_tables tb 
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	WHERE tb.table_name =: table_name 
-	
-	-- ENTITY --
+	UNION ALL
+	SELECT 
+	    'public static final String ' || upper(cols.column_name) || ' = "' ||tb.table_name || '.' || cols.column_name || '";' AS GEBERATE,
+	    tb.table_name
+	FROM all_tables tb 
+	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	UNION ALL
+	SELECT 
+	    '#########################ENTITY#########################' AS GEBERATE,
+	    table_name
+	FROM all_tables
+	UNION ALL
 	SELECT 
 	    (
 		'private ' ||
@@ -297,15 +307,20 @@
 		    WHEN 'NUMBER'    THEN 'Integer'
 		    WHEN 'VARCHAR'   THEN 'String'
 		    WHEN 'VARCHAR2'  THEN 'String'
+		WHEN 'DATE'      THEN 'java.sql.Date'
 		END || ' ' ||
 		lower(cols.column_name) || ';'
 
-	    ) AS ENTITY
+	    ) AS GEBERATE,
+	    tb.table_name
 	FROM all_tables tb
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	WHERE tb.table_name =: table_name 
-
-	-- RESULT_SET --
+	UNION ALL
+	SELECT 
+	    '#########################RESULT_SET#########################' AS GEBERATE,
+	    table_name
+	FROM all_tables
+	UNION ALL
 	SELECT 
 	    (
 		LOWER(cols.table_name) || '.set' || INITCAP(cols.column_name) || '(rs.get' ||
@@ -315,13 +330,18 @@
 		    WHEN 'VARCHAR2'  THEN 'String'
 		END  || 
 		'(COL_' || upper(cols.column_name) || '));'
-	    ) AS RESULT_SET
+	    ) AS GEBERATE,
+	    tb.table_name
 	FROM all_tables tb
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	WHERE tb.table_name =: table_name 
-	-- MAP --
+	UNION ALL
 	SELECT 
-	    'map.put(COL_' || upper(cols.column_name) || ', param.get' ||  INITCAP(cols.column_name) || '());' AS MAP
+	    '#########################MAP#########################' AS GEBERATE,
+	    table_name
+	FROM all_tables
+	UNION ALL
+	SELECT 
+	    'map.put(COL_' || upper(cols.column_name) || ', param.get' ||  INITCAP(cols.column_name) || '());'  AS GEBERATE,
+	    tb.table_name
 	FROM all_tables tb
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	WHERE tb.table_name =: table_name 
