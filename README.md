@@ -345,3 +345,7 @@
 	    tb.table_name
 	FROM all_tables tb
 	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+	
+use
+		
+	SELECT * FROM generate_repo where table_name = 'USERS'
