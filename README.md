@@ -1,4 +1,5 @@
 # Sample script generate code from database
+  ตัวอย่างการสร้าง code java จาก database
 
 # SCRIPT GENERATE FOR MSSQL
 	CREATE PROCEDURE [dbo].[generateRepository]   
