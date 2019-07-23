@@ -272,80 +272,85 @@
 	FROM sysibm.sqlcolumns WHERE TABLE_NAME = 'VPRCPF' AND TABLE_SCHEM = 'TDEVDTA';
 	
 # SCRIPT GENERATE FOR ORACLE
-	CREATE VIEW GENERATE_REPO AS
-	SELECT 
-    	'#########################COLUMNS#########################' AS GEBERATE,
-	    table_name
-	FROM all_tables
-	UNION ALL
-	SELECT 
-	'public static final String TB_' || upper(table_name) || ' = "' ||table_name || '";'  AS GEBERATE,
-	table_name
-	FROM all_tables 
-	UNION ALL
-	SELECT 
-	    'public static final String COL_' || upper(cols.column_name) || ' = "' || cols.column_name || '";' AS GEBERATE,
-	    tb.table_name
-	FROM all_tables tb 
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	UNION ALL
-	SELECT 
-	    'public static final String ' || upper(cols.column_name) || ' = "' ||tb.table_name || '.' || cols.column_name || '";' AS GEBERATE,
-	    tb.table_name
-	FROM all_tables tb 
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	UNION ALL
-	SELECT 
-	    '#########################ENTITY#########################' AS GEBERATE,
-	    table_name
-	FROM all_tables
-	UNION ALL
-	SELECT 
-	    (
-		'private ' ||
-		CASE cols.data_type
-		    WHEN 'NUMBER'    THEN 'Integer'
-		    WHEN 'VARCHAR'   THEN 'String'
-		    WHEN 'VARCHAR2'  THEN 'String'
-		WHEN 'DATE'      THEN 'java.sql.Date'
-		END || ' ' ||
-		lower(cols.column_name) || ';'
+	CREATE OR REPLACE PROCEDURE GENERATE_REPOSITORY(
+	    TB_NAME IN VARCHAR2, 
+	    ENTITY OUT SYS_REFCURSOR,
+	    COLUMN_SQL OUT SYS_REFCURSOR,
+	    MAPPING_COLUMN OUT SYS_REFCURSOR,
+	    MAPPING_RESULT OUT SYS_REFCURSOR
+	) 
+	AS
+	BEGIN
 
-	    ) AS GEBERATE,
-	    tb.table_name
-	FROM all_tables tb
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	UNION ALL
-	SELECT 
-	    '#########################RESULT_SET#########################' AS GEBERATE,
-	    table_name
-	FROM all_tables
-	UNION ALL
-	SELECT 
-	    (
-		LOWER(cols.table_name) || '.set' || INITCAP(cols.column_name) || '(rs.get' ||
-		CASE cols.data_type
-		    WHEN 'NUMBER'    THEN 'Int'
-		    WHEN 'VARCHAR'   THEN 'String'
-		    WHEN 'VARCHAR2'  THEN 'String'
-		END  || 
-		'(COL_' || upper(cols.column_name) || '));'
-	    ) AS GEBERATE,
-	    tb.table_name
-	FROM all_tables tb
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	UNION ALL
-	SELECT 
-	    '#########################MAP#########################' AS GEBERATE,
-	    table_name
-	FROM all_tables
-	UNION ALL
-	SELECT 
-	    'map.put(COL_' || upper(cols.column_name) || ', param.get' ||  INITCAP(cols.column_name) || '());'  AS GEBERATE,
-	    tb.table_name
-	FROM all_tables tb
-	INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
-	
-use
-		
-	SELECT * FROM generate_repo where table_name = 'USERS'
+	    OPEN COLUMN_SQL FOR
+		SELECT 
+		    'public static final String TB_' || UPPER(TB_NAME) || ' = "' ||TB_NAME || '";'  AS GEBERATE
+		FROM DUAL
+
+		UNION ALL
+
+		SELECT 
+		    'public static final String COL_' || UPPER(cols.column_name) || ' = "' || cols.column_name || '";' AS GEBERATE
+		FROM all_tables tb 
+		INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+		WHERE tb.table_name = TB_NAME
+
+		UNION ALL
+
+		SELECT 
+		     'public static final String SQL_' || UPPER(cols.column_name) || ' = "' ||tb.table_name || '.' || cols.column_name || '";' AS GEBERATE
+		FROM all_tables tb 
+		INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+		WHERE tb.table_name = TB_NAME;
+
+	    OPEN ENTITY FOR
+		SELECT 
+		    (
+			'private ' ||
+			CASE cols.data_type
+			    WHEN 'NUMBER'    THEN 'Integer'
+			    WHEN 'CHAR'      THEN 'String'
+			    WHEN 'VARCHAR'   THEN 'String'
+			    WHEN 'VARCHAR2'  THEN 'String'
+			    WHEN 'DATE'      THEN 'java.sql.Date'
+			END || ' ' ||
+			lower(substr(REGEXP_REPLACE(INITCAP(cols.column_name), '_', ''),1,1)) ||
+			substr(REGEXP_REPLACE(INITCAP(cols.column_name), '_', ''),2) || ';'
+		    ) AS GEBERATE
+		FROM all_tables tb
+		INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+		WHERE tb.table_name = TB_NAME;
+
+	    OPEN MAPPING_COLUMN FOR
+		SELECT 
+		    'map.put(COL_' || 
+		    UPPER(cols.column_name) || 
+		    ', param.get' || 
+		    REGEXP_REPLACE(INITCAP(cols.column_name), '_', '') ||
+		    '());'  AS GEBERATE
+		FROM all_tables tb
+		INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+		WHERE tb.table_name = TB_NAME;
+
+	    OPEN MAPPING_RESULT FOR
+		SELECT 
+		    (
+		       lower(substr(REGEXP_REPLACE(INITCAP(cols.table_name), '_', ''),1,1)) || 
+			substr(REGEXP_REPLACE(INITCAP(cols.table_name), '_', ''),2) ||
+			'.set' ||
+			REGEXP_REPLACE(INITCAP(cols.column_name), '_', '') || 
+			'(rs.get' ||
+			CASE cols.data_type
+			    WHEN 'NUMBER'    THEN 'Integer'
+			    WHEN 'CHAR'      THEN 'String'
+			    WHEN 'VARCHAR'   THEN 'String'
+			    WHEN 'VARCHAR2'  THEN 'String'
+			    WHEN 'DATE'      THEN 'java.sql.Date'
+			END  || 
+			'(COL_' || upper(cols.column_name) || '));'
+		    ) AS GEBERATE
+		FROM all_tables tb
+		INNER JOIN all_tab_columns cols ON tb.table_name = cols.table_name
+		 WHERE tb.table_name = TB_NAME;
+
+	END;
